@@ -173,7 +173,6 @@ async function decryptText(token, pass, codes){
     const ivBuf = fromBase64Url(ivB);
     const ctBuf = fromBase64Url(ctB);
     const iters = parseInt(itS,10);
-
     const codeBytes = enc.encode(codes || '');
     const rawArr = new Uint8Array(rawSaltBuf);
     const combined = new Uint8Array(rawArr.length + codeBytes.length);
@@ -294,12 +293,16 @@ el('modalClose').addEventListener('click', hideManualCopyModal);
 window.addEventListener('load', ()=>{
   if(location.hash){
     try{
-      const frag=location.hash.slice(1);
-      const params=new URLSearchParams(frag);
-      const token=params.get('secret');
-      const codes=params.get('codes');
-      if(token) el('pasteToken').value=token;
-      if(codes) el('codes').value=codes;
+      const hashStr = location.hash;
+      const index = hashStr.indexOf('#secret=');
+      if(index !== -1){
+        const frag = hashStr.slice(index + 8);
+        const params = new URLSearchParams(frag);
+        const token = params.get('');
+        const codes = params.get('codes');
+        if(token) el('pasteToken').value = token;
+        if(codes) el('codes').value = codes;
+      }
     }catch{}
   }
 });
