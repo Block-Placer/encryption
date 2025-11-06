@@ -26,351 +26,283 @@
     .output{background:var(--secondary);padding:12px;border-radius:10px;font-family:monospace;white-space:pre-wrap;word-break:break-all}
     .note{color:var(--muted);font-size:13px}
     .muted{color:var(--muted)}
-   
     textarea[readonly]{opacity:1}
     .flex{display:flex;gap:12px;align-items:center}
-
-    
     .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,0.6);z-index:999}
     .modal .box{width:min(760px,94%);background:var(--card);padding:18px;border-radius:12px}
     .modal textarea{height:160px}
     .footer{margin-top:18px;text-align:center;color:var(--muted);font-size:13px}
-
     @media (max-width:720px){.buttons{flex-direction:column} .flex{flex-direction:column;align-items:stretch}}
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Cipher Generator</h1>
-    <p class="sub">Encrypt & decrypt messages locally. Modifier codes change the derived key — keep them secret or include them in share links.</p>
+<div class="container">
+  <h1>Cipher Generator</h1>
+  <p class="sub">Encrypt & decrypt messages locally. Modifier codes change the derived key — keep them secret or include them in share links.</p>
 
-    <div class="card" id="encryptCard">
-      <div class="row">
-        <label for="plaintext">Message</label>
-        <textarea id="plaintext" placeholder="Type your secret message here...">Hello, world!</textarea>
-      </div>
-
-      <div class="row">
-        <label for="passphrase">Passphrase (main key)</label>
-        <input id="passphrase" type="text" placeholder="Enter a strong passphrase" />
-      </div>
-
-      <div class="row">
-        <label for="codes">Modifier Codes (optional)</label>
-        <input id="codes" type="text" placeholder="e.g. alpha,moon,red" />
-        <div class="note">If you include modifier codes when encrypting, the same codes are required to decrypt (unless included in the share link).</div>
-      </div>
-
-      <div class="row">
-        <label for="iterations">Security Level</label>
-        <select id="iterations">
-          <option value="120000">Fast (120k iterations)</option>
-          <option value="200000" selected>Balanced (200k iterations)</option>
-          <option value="400000">Strong (400k iterations)</option>
-        </select>
-      </div>
-
-      <div class="row buttons">
-        <button id="encryptBtn" class="btn-primary">Encrypt 🔒</button>
-        <button id="decryptBtn" class="btn-green">Decrypt 🔓</button>
-        <button id="clearBtn" class="btn-secondary">Clear</button>
-      </div>
-
-      <div style="height:8px"></div>
-
-      <div class="row">
-        <label for="tokenOutput">Encrypted Token</label>
-        
-        <textarea id="tokenOutput" readonly rows="4" placeholder="(Encrypted token will appear here)">(Your encrypted text will appear here)</textarea>
-      </div>
-
-      <div class="row flex">
-        <div style="flex:1" class="buttons">
-          <button id="copyToken" class="btn-blue">Copy Token</button>
-          <button id="makeLink" class="btn-blue">Create Share Link</button>
-          <button id="downloadFile" class="btn-secondary">Download .secret</button>
-        </div>
-        <div style="min-width:220px">
-          <label style="font-weight:600;margin-bottom:6px;display:block">Share link options</label>
-          <div class="muted" style="font-size:13px">Include modifier codes in the link?</div>
-          <div style="margin-top:8px"><input type="checkbox" id="includeCodesCheckbox" /> <label for="includeCodesCheckbox" class="muted">Yes — embed codes in link</label></div>
-        </div>
-      </div>
-
+  <div class="card" id="encryptCard">
+    <div class="row">
+      <label for="plaintext">Message</label>
+      <textarea id="plaintext" placeholder="Type your secret message here...">Hello, world!</textarea>
     </div>
 
-    <div class="card">
-      <div class="row">
-        <label for="pasteToken">Paste Token or Link</label>
-        <input id="pasteToken" type="text" placeholder="Paste your token or link with #secret=..." />
-      </div>
-
-      <div class="row">
-        <label>Decrypted Message</label>
-        <div id="plainOutput" class="output">(Decrypted message will appear here)</div>
-      </div>
-
-      <div class="row" id="shareRow" style="display:none">
-        <label for="shareLink">Share Link (generated)</label>
-        <input id="shareLink" type="text" readonly />
-        <div class="buttons" style="margin-top:8px">
-          <button id="copyLink" class="btn-blue">Copy Link</button>
-        </div>
-      </div>
+    <div class="row">
+      <label for="passphrase">Passphrase (main key)</label>
+      <input id="passphrase" type="text" placeholder="Enter a strong passphrase" />
     </div>
 
-    <div class="footer">💡 All encryption happens in your browser — nothing is sent to any server.</div>
-  </div>
+    <div class="row">
+      <label for="codes">Modifier Codes (optional)</label>
+      <input id="codes" type="text" placeholder="e.g. alpha,moon,red" />
+      <div class="note">If you include modifier codes when encrypting, the same codes are required to decrypt (unless included in the share link).</div>
+    </div>
 
-  
-  <div id="modal" class="modal" role="dialog" aria-hidden="true">
-    <div class="box">
-      <h3 style="margin-top:0">Manual copy required</h3>
-      <p class="muted">Your browser or environment blocked programmatic clipboard access. Please copy the text below manually (select it and press Ctrl/Cmd+C).</p>
-      <textarea id="manualCopyArea"></textarea>
-      <div style="display:flex;gap:10px;margin-top:10px">
-        <button id="modalSelect" class="btn-blue">Select All</button>
-        <button id="modalClose" class="btn-secondary">Close</button>
+    <div class="row">
+      <label for="iterations">Security Level</label>
+      <select id="iterations">
+        <option value="120000">Fast (120k iterations)</option>
+        <option value="200000" selected>Balanced (200k iterations)</option>
+        <option value="400000">Strong (400k iterations)</option>
+      </select>
+    </div>
+
+    <div class="row buttons">
+      <button id="encryptBtn" class="btn-primary">Encrypt 🔒</button>
+      <button id="decryptBtn" class="btn-green">Decrypt 🔓</button>
+      <button id="clearBtn" class="btn-secondary">Clear</button>
+    </div>
+
+    <div style="height:8px"></div>
+
+    <div class="row">
+      <label for="tokenOutput">Encrypted Token</label>
+      <textarea id="tokenOutput" readonly rows="4" placeholder="(Encrypted token will appear here)">(Your encrypted text will appear here)</textarea>
+    </div>
+
+    <div class="row flex">
+      <div style="flex:1" class="buttons">
+        <button id="copyToken" class="btn-blue">Copy Token</button>
+        <button id="makeLink" class="btn-blue">Create Share Link</button>
+        <button id="downloadFile" class="btn-secondary">Download .secret</button>
+      </div>
+      <div style="min-width:220px">
+        <label style="font-weight:600;margin-bottom:6px;display:block">Share link options</label>
+        <div class="muted" style="font-size:13px">Include modifier codes in the link?</div>
+        <div style="margin-top:8px"><input type="checkbox" id="includeCodesCheckbox" /> <label for="includeCodesCheckbox" class="muted">Yes — embed codes in link</label></div>
       </div>
     </div>
   </div>
 
-  <script>
-     -- crypto helpers (unchanged semantics) --
-    const enc = new TextEncoder();
-    const dec = new TextDecoder();
+  <div class="card">
+    <div class="row">
+      <label for="pasteToken">Paste Token or Link</label>
+      <input id="pasteToken" type="text" placeholder="Paste your token or link with #secret=..." />
+    </div>
 
-    function toBase64Url(buf){
-      return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\g,'_').replace(/=+$/,'');
-    }
+    <div class="row">
+      <label>Decrypted Message</label>
+      <div id="plainOutput" class="output">(Decrypted message will appear here)</div>
+    </div>
 
-    function fromBase64Url(s){
-      s = s.replace(/-/g,'+').replace(/_/g,'/');
-      while(s.length % 4) s += '=';
-      const bin = atob(s);
-      return Uint8Array.from(bin, c=>c.charCodeAt(0)).buffer;
-    }
+    <div class="row" id="shareRow" style="display:none">
+      <label for="shareLink">Share Link (generated)</label>
+      <input id="shareLink" type="text" readonly />
+      <div class="buttons" style="margin-top:8px">
+        <button id="copyLink" class="btn-blue">Copy Link</button>
+      </div>
+    </div>
+  </div>
 
-    function randBytes(n){ const a=new Uint8Array(n); crypto.getRandomValues(a); return a; }
+  <div class="footer">💡 All encryption happens in your browser — nothing is sent to any server.</div>
+</div>
 
-    async function deriveKey(pass, saltBuffer, iters){
-      const baseKey = await crypto.subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveKey']);
-      return crypto.subtle.deriveKey({name:'PBKDF2', salt: saltBuffer, iterations: iters, hash:'SHA-256'}, baseKey, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']);
-    }
+<div id="modal" class="modal" role="dialog" aria-hidden="true">
+  <div class="box">
+    <h3 style="margin-top:0">Manual copy required</h3>
+    <p class="muted">Your browser or environment blocked programmatic clipboard access. Please copy the text below manually (select it and press Ctrl/Cmd+C).</p>
+    <textarea id="manualCopyArea"></textarea>
+    <div style="display:flex;gap:10px;margin-top:10px">
+      <button id="modalSelect" class="btn-blue">Select All</button>
+      <button id="modalClose" class="btn-secondary">Close</button>
+    </div>
+  </div>
+</div>
 
-    async function encryptText(txt, pass, codes, iters){
-      const rawSalt = randBytes(16);
-      const iv = randBytes(12);
-      const codeBytes = enc.encode(codes || '');
-      const combined = new Uint8Array(rawSalt.length + codeBytes.length);
-      combined.set(rawSalt, 0);
-      combined.set(codeBytes, rawSalt.length);
-      const hash = await crypto.subtle.digest('SHA-256', combined.buffer);
-      const finalSalt = new Uint8Array(hash).slice(0,16).buffer;
-      const key = await deriveKey(pass, finalSalt, iters);
-      const ct = await crypto.subtle.encrypt({name:'AES-GCM', iv}, key, enc.encode(txt));
-       token: v1.rawSalt.iv.ct.iter
-      return ['v1', toBase64Url(rawSalt.buffer), toBase64Url(iv), toBase64Url(ct), iters].join('.');
-    }
+<script>
+const enc = new TextEncoder();
+const dec = new TextDecoder();
 
-    async function decryptText(token, pass, codes){
-      try{
-        const parts = token.split('.');
-        if(parts.length < 5) throw new Error('Invalid token');
-        const [, saltB, ivB, ctB, itS] = parts;
-        const rawSaltBuf = fromBase64Url(saltB);
-        const ivBuf = fromBase64Url(ivB);
-        const ctBuf = fromBase64Url(ctB);
-        const iters = parseInt(itS,10);
+function toBase64Url(buf){
+  return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
 
-        async function deriveFinalSaltFromRaw(rawBuf, codesStr){
-          const codeBytes = enc.encode(codesStr || '');
-          const rawArr = new Uint8Array(rawBuf);
-          const combined = new Uint8Array(rawArr.length + codeBytes.length);
-          combined.set(rawArr,0);
-          combined.set(codeBytes, rawArr.length);
-          const hash = await crypto.subtle.digest('SHA-256', combined.buffer);
-          return new Uint8Array(hash).slice(0,16).buffer;
-        }
+function fromBase64Url(s){
+  s = s.replace(/-/g,'+').replace(/_/g,'/');
+  while(s.length % 4) s += '=';
+  const bin = atob(s);
+  return Uint8Array.from(bin, c=>c.charCodeAt(0)).buffer;
+}
 
-        if(codes && codes.trim() !== ''){
-          try{
-            const finalSalt = await deriveFinalSaltFromRaw(rawSaltBuf, codes);
-            const key = await deriveKey(pass, finalSalt, iters);
-            const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv:new Uint8Array(ivBuf)}, key, ctBuf);
-            return dec.decode(pt);
-          }catch(e){
-             fallback: maybe stored salt is already final salt
-            const key2 = await deriveKey(pass, rawSaltBuf, iters);
-            const pt2 = await crypto.subtle.decrypt({name:'AES-GCM', iv:new Uint8Array(ivBuf)}, key2, ctBuf);
-            return dec.decode(pt2);
-          }
-        }
+function randBytes(n){ const a=new Uint8Array(n); crypto.getRandomValues(a); return a; }
 
-         no codes provided: try treating stored salt as final, then try treating it as raw+empty codes
-        try{
-          const key = await deriveKey(pass, rawSaltBuf, iters);
-          const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv:new Uint8Array(ivBuf)}, key, ctBuf);
-          return dec.decode(pt);
-        }catch(e){
-          const finalSalt = await deriveFinalSaltFromRaw(rawSaltBuf, '');
-          const key2 = await deriveKey(pass, finalSalt, iters);
-          const pt2 = await crypto.subtle.decrypt({name:'AES-GCM', iv:new Uint8Array(ivBuf)}, key2, ctBuf);
-          return dec.decode(pt2);
-        }
-      }catch(e){
-        return '❌ Failed to decrypt';
-      }
-    }
+async function deriveKey(pass, saltBuffer, iters){
+  const baseKey = await crypto.subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2', salt: saltBuffer, iterations: iters, hash:'SHA-256'}, baseKey, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']);
+}
 
-     -- UI helpers and clipboard-safe copying --
-    const el = id => document.getElementById(id);
+async function encryptText(txt, pass, codes, iters){
+  const rawSalt = randBytes(16);
+  const iv = randBytes(12);
+  const codeBytes = enc.encode(codes || '');
+  const combined = new Uint8Array(rawSalt.length + codeBytes.length);
+  combined.set(rawSalt, 0);
+  combined.set(codeBytes, rawSalt.length);
+  const hash = await crypto.subtle.digest('SHA-256', combined.buffer);
+  const finalSalt = new Uint8Array(hash).slice(0,16).buffer;
+  const key = await deriveKey(pass, finalSalt, iters);
+  const ct = await crypto.subtle.encrypt({name:'AES-GCM', iv}, key, enc.encode(txt));
+  return ['v1', toBase64Url(rawSalt.buffer), toBase64Url(iv), toBase64Url(ct), iters].join('.');
+}
 
-     Robust copy that tries navigator.clipboard then execCommand, then shows a manual modal
-    async function copyToClipboard(text){
-      if(!text) { alert('Nothing to copy'); return false; }
-       Try modern clipboard API first
-      try{
-        if(navigator.clipboard && navigator.clipboard.writeText){
-          await navigator.clipboard.writeText(text);
-           success
-          return true;
-        }
-      }catch(e){
-         fall through to legacy method
-        console.warn('clipboard.writeText failed:', e);
-      }
+async function decryptText(token, pass, codes){
+  try{
+    const parts = token.split('.');
+    if(parts.length < 5) throw new Error();
+    const [, saltB, ivB, ctB, itS] = parts;
+    const rawSaltBuf = fromBase64Url(saltB);
+    const ivBuf = fromBase64Url(ivB);
+    const ctBuf = fromBase64Url(ctB);
+    const iters = parseInt(itS,10);
 
-       Legacy execCommand fallback
-      try{
-        const ta = document.createElement('textarea');
-        ta.value = text;
-         avoid scrolling to bottom
-        ta.style.position = 'fixed';
-        ta.style.left = '-9999px';
-        document.body.appendChild(ta);
-        ta.select();
-        ta.setSelectionRange(0, ta.value.length);
-        const ok = document.execCommand('copy');
-        document.body.removeChild(ta);
-        if(ok) return true;
-      }catch(e){
-        console.warn('execCommand copy failed', e);
-      }
+    const codeBytes = enc.encode(codes || '');
+    const rawArr = new Uint8Array(rawSaltBuf);
+    const combined = new Uint8Array(rawArr.length + codeBytes.length);
+    combined.set(rawArr,0);
+    combined.set(codeBytes, rawArr.length);
+    const hash = await crypto.subtle.digest('SHA-256', combined.buffer);
+    const finalSalt = new Uint8Array(hash).slice(0,16).buffer;
+    const key = await deriveKey(pass, finalSalt, iters);
+    const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv:new Uint8Array(ivBuf)}, key, ctBuf);
+    return dec.decode(pt);
+  } catch(e){
+    return '❌ Failed to decrypt';
+  }
+}
 
-       Final fallback: show manual modal with text to copy
-      showManualCopyModal(text);
-      return false;
-    }
+const el = id => document.getElementById(id);
 
-    function showManualCopyModal(text){
-      const modal = el('modal');
-      const area = el('manualCopyArea');
-      area.value = text;
-      modal.style.display = 'flex';
-      modal.setAttribute('aria-hidden','false');
-       auto-select content so user can press Ctrl/Cmd+C quickly
-      setTimeout(()=>{ area.focus(); area.select(); }, 100);
-    }
-    function hideManualCopyModal(){
-      const modal = el('modal');
-      modal.style.display = 'none';
-      modal.setAttribute('aria-hidden','true');
-    }
+async function copyToClipboard(text){
+  if(!text) { alert('Nothing to copy'); return false; }
+  try { await navigator.clipboard.writeText(text); return true; } catch(e){}
+  try{
+    const ta=document.createElement('textarea');
+    ta.value=text;
+    ta.style.position='fixed';
+    ta.style.left='-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, ta.value.length);
+    const ok=document.execCommand('copy');
+    document.body.removeChild(ta);
+    if(ok) return true;
+  } catch(e){}
+  const modal=el('modal');
+  const area=el('manualCopyArea');
+  area.value=text;
+  modal.style.display='flex';
+  modal.setAttribute('aria-hidden','false');
+  setTimeout(()=>{ area.focus(); area.select(); },100);
+  return false;
+}
 
-     -- main UI wiring --
-    el('encryptBtn').addEventListener('click', async ()=>{
-      const t = el('plaintext').value.trim();
-      const p = el('passphrase').value.trim();
-      const c = el('codes').value.trim();
-      const it = parseInt(el('iterations').value,10);
-      if(!t || !p) return alert('Enter message and passphrase!');
-      el('tokenOutput').value = 'Encrypting...';
-      try{
-        const tok = await encryptText(t,p,c,it);
-        el('tokenOutput').value = tok;
-         hide previous share link
-        el('shareRow').style.display = 'none';
-      }catch(err){
-        el('tokenOutput').value = 'Error during encryption';
-      }
-    });
+function hideManualCopyModal(){
+  const modal=el('modal');
+  modal.style.display='none';
+  modal.setAttribute('aria-hidden','true');
+}
 
-    el('decryptBtn').addEventListener('click', async ()=>{
-      const tok = el('pasteToken').value.trim() || el('tokenOutput').value.trim();
-      const p = el('passphrase').value.trim();
-      const c = el('codes').value.trim();
-      if(!tok || !p) return alert('Enter token and passphrase!');
-      el('plainOutput').textContent = 'Decrypting...';
-      const res = await decryptText(tok,p,c);
-      el('plainOutput').textContent = res;
-    });
+el('encryptBtn').addEventListener('click', async ()=>{
+  const t=el('plaintext').value.trim();
+  const p=el('passphrase').value.trim();
+  const c=el('codes').value.trim();
+  const it=parseInt(el('iterations').value,10);
+  if(!t||!p) return alert('Enter message and passphrase!');
+  el('tokenOutput').value='Encrypting...';
+  try{
+    const tok=await encryptText(t,p,c,it);
+    el('tokenOutput').value=tok;
+    el('shareRow').style.display='none';
+  }catch{el('tokenOutput').value='Error during encryption';}
+});
 
-    el('copyToken').addEventListener('click', async ()=>{
-      const tok = el('tokenOutput').value;
-      const ok = await copyToClipboard(tok);
-      if(ok) alert('Token copied to clipboard');
-    });
+el('decryptBtn').addEventListener('click', async ()=>{
+  const tok=el('pasteToken').value.trim()||el('tokenOutput').value.trim();
+  const p=el('passphrase').value.trim();
+  const c=el('codes').value.trim();
+  if(!tok||!p) return alert('Enter token and passphrase!');
+  el('plainOutput').textContent='Decrypting...';
+  const res=await decryptText(tok,p,c);
+  el('plainOutput').textContent=res;
+});
 
-     Create link but DO NOT copy automatically; instead populate the shareLink input and show copy button
-    el('makeLink').addEventListener('click', ()=>{
-      const token = el('tokenOutput').value;
-      if(!token || !token.startsWith('v1.')) return alert('No valid token to share');
-      const includeCodes = el('includeCodesCheckbox').checked;
-      let frag = 'secret=' + encodeURIComponent(token);
-      if(includeCodes){
-        const c = el('codes').value.trim();
-        if(c) frag += '&codes=' + encodeURIComponent(c);
-      }
-      const link = `${location.href.split('#')[0]}#${frag}`;
-      el('shareLink').value = link;
-      el('shareRow').style.display = 'block';
-       Bring the share link into view on small screens
-      setTimeout(()=> el('shareLink').scrollIntoView({behavior:'smooth', block:'center'}), 80);
-    });
+el('copyToken').addEventListener('click', async ()=>{
+  const tok=el('tokenOutput').value;
+  if(await copyToClipboard(tok)) alert('Token copied to clipboard');
+});
 
-    el('copyLink').addEventListener('click', async ()=>{
-      const link = el('shareLink').value;
-      const ok = await copyToClipboard(link);
-      if(ok) alert('Share link copied to clipboard');
-    });
+el('makeLink').addEventListener('click', ()=>{
+  const token=el('tokenOutput').value;
+  if(!token||!token.startsWith('v1.')) return alert('No valid token to share');
+  const includeCodes=el('includeCodesCheckbox').checked;
+  let frag='secret='+encodeURIComponent(token);
+  if(includeCodes){
+    const c=el('codes').value.trim();
+    if(c) frag+='&codes='+encodeURIComponent(c);
+  }
+  const link=`${location.href.split('#')[0]}#${frag}`;
+  el('shareLink').value=link;
+  el('shareRow').style.display='block';
+  setTimeout(()=>el('shareLink').scrollIntoView({behavior:'smooth',block:'center'}),80);
+});
 
-    el('downloadFile').addEventListener('click', ()=>{
-      const token = el('tokenOutput').value;
-      if(!token || !token.startsWith('v1.')) return alert('No valid token to download');
-      const blob = new Blob([token], {type:'text/plain'});
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'secret.token';
-      a.click();
-      URL.revokeObjectURL(a.href);
-    });
+el('copyLink').addEventListener('click', async ()=>{
+  const link=el('shareLink').value;
+  if(await copyToClipboard(link)) alert('Share link copied to clipboard');
+});
 
-    el('clearBtn').addEventListener('click', ()=>{
-      ['plaintext','passphrase','codes','pasteToken'].forEach(id=> el(id).value = '');
-      el('tokenOutput').value = '(Your encrypted text will appear here)';
-      el('plainOutput').textContent = '(Decrypted message will appear here)';
-      el('shareRow').style.display = 'none';
-    });
+el('downloadFile').addEventListener('click', ()=>{
+  const token=el('tokenOutput').value;
+  if(!token||!token.startsWith('v1.')) return alert('No valid token to download');
+  const blob=new Blob([token],{type:'text/plain'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='secret.token';
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
 
-     manual modal controls
-    el('modalSelect').addEventListener('click', ()=>{ const a = el('manualCopyArea'); a.focus(); a.select(); });
-    el('modalClose').addEventListener('click', ()=>{ hideManualCopyModal(); });
+el('clearBtn').addEventListener('click', ()=>{
+  ['plaintext','passphrase','codes','pasteToken'].forEach(id=>el(id).value='');
+  el('tokenOutput').value='(Your encrypted text will appear here)';
+  el('plainOutput').textContent='(Decrypted message will appear here)';
+  el('shareRow').style.display='none';
+});
 
-     Load token/codes from URL fragment on page load
-    window.addEventListener('load', ()=>{
-      if(location.hash){
-        try{
-          const frag = location.hash.slice(1);
-          const params = new URLSearchParams(frag);
-          const token = params.get('secret');
-          const codes = params.get('codes');
-          if(token) el('pasteToken').value = token;
-          if(codes) el('codes').value = codes;
-        }catch(e){}
-      }
-    });
+el('modalSelect').addEventListener('click', ()=>{ const a=el('manualCopyArea'); a.focus(); a.select(); });
+el('modalClose').addEventListener('click', hideManualCopyModal);
 
-  </script>
+window.addEventListener('load', ()=>{
+  if(location.hash){
+    try{
+      const frag=location.hash.slice(1);
+      const params=new URLSearchParams(frag);
+      const token=params.get('secret');
+      const codes=params.get('codes');
+      if(token) el('pasteToken').value=token;
+      if(codes) el('codes').value=codes;
+    }catch{}
+  }
+});
+</script>
 </body>
 </html>
