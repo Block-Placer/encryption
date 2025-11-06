@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Secret Cipher Maker</title>
+  <link rel="manifest" href="manifest.webmanifest">
   <style>
     :root{--bg:#0f1724;--card:#131b2d;--accent:#7c3aed;--secondary:#1e293b;--text:#e2e8f0;--muted:#9aa6c0;--radius:14px}
     *{box-sizing:border-box}
@@ -25,11 +26,11 @@
     .output{background:var(--secondary);padding:12px;border-radius:10px;font-family:monospace;white-space:pre-wrap;word-break:break-all}
     .note{color:var(--muted);font-size:13px}
     .muted{color:var(--muted)}
-    /* token area as textarea */
+   
     textarea[readonly]{opacity:1}
     .flex{display:flex;gap:12px;align-items:center}
 
-    /* manual copy modal */
+    
     .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,0.6);z-index:999}
     .modal .box{width:min(760px,94%);background:var(--card);padding:18px;border-radius:12px}
     .modal textarea{height:160px}
@@ -37,7 +38,6 @@
 
     @media (max-width:720px){.buttons{flex-direction:column} .flex{flex-direction:column;align-items:stretch}}
   </style>
-  <style><link rel="manifest" href="manifest.webmanifest"></style>
 </head>
 <body>
   <div class="container">
@@ -80,7 +80,7 @@
 
       <div class="row">
         <label for="tokenOutput">Encrypted Token</label>
-        <!-- use a readonly textarea so users can always select if clipboard APIs are blocked -->
+        
         <textarea id="tokenOutput" readonly rows="4" placeholder="(Encrypted token will appear here)">(Your encrypted text will appear here)</textarea>
       </div>
 
@@ -122,7 +122,7 @@
     <div class="footer">💡 All encryption happens in your browser — nothing is sent to any server.</div>
   </div>
 
-  <!-- Manual copy modal (shown when clipboard is blocked) -->
+  
   <div id="modal" class="modal" role="dialog" aria-hidden="true">
     <div class="box">
       <h3 style="margin-top:0">Manual copy required</h3>
@@ -136,12 +136,12 @@
   </div>
 
   <script>
-    // -- crypto helpers (unchanged semantics) --
+     -- crypto helpers (unchanged semantics) --
     const enc = new TextEncoder();
     const dec = new TextDecoder();
 
     function toBase64Url(buf){
-      return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+      return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\g,'_').replace(/=+$/,'');
     }
 
     function fromBase64Url(s){
@@ -169,7 +169,7 @@
       const finalSalt = new Uint8Array(hash).slice(0,16).buffer;
       const key = await deriveKey(pass, finalSalt, iters);
       const ct = await crypto.subtle.encrypt({name:'AES-GCM', iv}, key, enc.encode(txt));
-      // token: v1.rawSalt.iv.ct.iter
+       token: v1.rawSalt.iv.ct.iter
       return ['v1', toBase64Url(rawSalt.buffer), toBase64Url(iv), toBase64Url(ct), iters].join('.');
     }
 
@@ -200,14 +200,14 @@
             const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv:new Uint8Array(ivBuf)}, key, ctBuf);
             return dec.decode(pt);
           }catch(e){
-            // fallback: maybe stored salt is already final salt
+             fallback: maybe stored salt is already final salt
             const key2 = await deriveKey(pass, rawSaltBuf, iters);
             const pt2 = await crypto.subtle.decrypt({name:'AES-GCM', iv:new Uint8Array(ivBuf)}, key2, ctBuf);
             return dec.decode(pt2);
           }
         }
 
-        // no codes provided: try treating stored salt as final, then try treating it as raw+empty codes
+         no codes provided: try treating stored salt as final, then try treating it as raw+empty codes
         try{
           const key = await deriveKey(pass, rawSaltBuf, iters);
           const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv:new Uint8Array(ivBuf)}, key, ctBuf);
@@ -223,29 +223,29 @@
       }
     }
 
-    // -- UI helpers and clipboard-safe copying --
+     -- UI helpers and clipboard-safe copying --
     const el = id => document.getElementById(id);
 
-    // Robust copy that tries navigator.clipboard then execCommand, then shows a manual modal
+     Robust copy that tries navigator.clipboard then execCommand, then shows a manual modal
     async function copyToClipboard(text){
       if(!text) { alert('Nothing to copy'); return false; }
-      // Try modern clipboard API first
+       Try modern clipboard API first
       try{
         if(navigator.clipboard && navigator.clipboard.writeText){
           await navigator.clipboard.writeText(text);
-          // success
+           success
           return true;
         }
       }catch(e){
-        // fall through to legacy method
+         fall through to legacy method
         console.warn('clipboard.writeText failed:', e);
       }
 
-      // Legacy execCommand fallback
+       Legacy execCommand fallback
       try{
         const ta = document.createElement('textarea');
         ta.value = text;
-        // avoid scrolling to bottom
+         avoid scrolling to bottom
         ta.style.position = 'fixed';
         ta.style.left = '-9999px';
         document.body.appendChild(ta);
@@ -258,7 +258,7 @@
         console.warn('execCommand copy failed', e);
       }
 
-      // Final fallback: show manual modal with text to copy
+       Final fallback: show manual modal with text to copy
       showManualCopyModal(text);
       return false;
     }
@@ -269,7 +269,7 @@
       area.value = text;
       modal.style.display = 'flex';
       modal.setAttribute('aria-hidden','false');
-      // auto-select content so user can press Ctrl/Cmd+C quickly
+       auto-select content so user can press Ctrl/Cmd+C quickly
       setTimeout(()=>{ area.focus(); area.select(); }, 100);
     }
     function hideManualCopyModal(){
@@ -278,7 +278,7 @@
       modal.setAttribute('aria-hidden','true');
     }
 
-    // -- main UI wiring --
+     -- main UI wiring --
     el('encryptBtn').addEventListener('click', async ()=>{
       const t = el('plaintext').value.trim();
       const p = el('passphrase').value.trim();
@@ -289,7 +289,7 @@
       try{
         const tok = await encryptText(t,p,c,it);
         el('tokenOutput').value = tok;
-        // hide previous share link
+         hide previous share link
         el('shareRow').style.display = 'none';
       }catch(err){
         el('tokenOutput').value = 'Error during encryption';
@@ -312,7 +312,7 @@
       if(ok) alert('Token copied to clipboard');
     });
 
-    // Create link but DO NOT copy automatically; instead populate the shareLink input and show copy button
+     Create link but DO NOT copy automatically; instead populate the shareLink input and show copy button
     el('makeLink').addEventListener('click', ()=>{
       const token = el('tokenOutput').value;
       if(!token || !token.startsWith('v1.')) return alert('No valid token to share');
@@ -325,7 +325,7 @@
       const link = `${location.href.split('#')[0]}#${frag}`;
       el('shareLink').value = link;
       el('shareRow').style.display = 'block';
-      // Bring the share link into view on small screens
+       Bring the share link into view on small screens
       setTimeout(()=> el('shareLink').scrollIntoView({behavior:'smooth', block:'center'}), 80);
     });
 
@@ -353,11 +353,11 @@
       el('shareRow').style.display = 'none';
     });
 
-    // manual modal controls
+     manual modal controls
     el('modalSelect').addEventListener('click', ()=>{ const a = el('manualCopyArea'); a.focus(); a.select(); });
     el('modalClose').addEventListener('click', ()=>{ hideManualCopyModal(); });
 
-    // Load token/codes from URL fragment on page load
+     Load token/codes from URL fragment on page load
     window.addEventListener('load', ()=>{
       if(location.hash){
         try{
