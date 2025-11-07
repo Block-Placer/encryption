@@ -3,309 +3,615 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Cipher Generator</title>
+  <title>Cipher Generator — Modern</title>
   <link rel="manifest" href="manifest.webmanifest">
+  <meta name="color-scheme" content="dark">
   <style>
-    :root{--bg:#0f1724;--card:#131b2d;--accent:#7c3aed;--secondary:#1e293b;--text:#e2e8f0;--muted:#9aa6c0;--radius:14px}
+    :root{
+      --bg:#071021;
+      --panel:#0f1724;
+      --muted:#9aa6c0;
+      --card:#0b1220;
+      --accent:#7c3aed;
+      --accent-2:#5eead4;
+      --success:#10b981;
+      --danger:#ef4444;
+      --glass: rgba(255,255,255,0.02);
+      --radius:16px;
+      --shadow: 0 10px 30px rgba(2,6,23,0.6);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;
+      --sans: Inter, ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial;
+    }
     *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,'Segoe UI',Roboto,Arial;background:linear-gradient(180deg,#0a1122 0%,#0c152e 100%);color:var(--text)}
-    .container{max-width:980px;margin:32px auto;padding:28px}
-    h1{text-align:center;margin:0 0 6px;font-size:1.9rem}
-    p.sub{text-align:center;color:var(--muted);margin:0 0 26px}
-    .card{background:var(--card);border-radius:var(--radius);padding:22px;margin-bottom:18px;box-shadow:0 8px 28px rgba(0,0,0,0.45)}
-    label{display:block;font-weight:600;margin-bottom:8px}
-    input[type=text], textarea, select{width:100%;padding:12px;border-radius:10px;border:1px solid #172033;background:var(--secondary);color:var(--text);font-size:14px;margin-bottom:14px}
-    textarea{min-height:110px;resize:vertical}
-    .row{margin-bottom:10px}
-    .buttons{display:flex;gap:10px;flex-wrap:wrap}
-    button{padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:700}
-    .btn-primary{background:var(--accent);color:white}
-    .btn-green{background:#10b981;color:white}
-    .btn-blue{background:#2563eb;color:white}
-    .btn-secondary{background:#111827;color:white}
-    .output{background:var(--secondary);padding:12px;border-radius:10px;font-family:monospace;white-space:pre-wrap;word-break:break-all}
-    .note{color:var(--muted);font-size:13px}
-    .muted{color:var(--muted)}
-    textarea[readonly]{opacity:1}
-    .flex{display:flex;gap:12px;align-items:center}
-    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,0.6);z-index:999}
-    .modal .box{width:min(760px,94%);background:var(--card);padding:18px;border-radius:12px}
+    html,body{height:100%;margin:0;font-family:var(--sans);background:
+      radial-gradient(800px 400px at 10% 10%, rgba(124,58,237,0.08), transparent 6%),
+      linear-gradient(180deg,#071024 0%, #081220 40%); color:#e6eef8; -webkit-font-smoothing:antialiased;}
+    a{color:var(--accent)}
+    .wrap{max-width:1060px;margin:28px auto;padding:20px}
+    header{display:flex;align-items:center;gap:18px;margin-bottom:18px}
+    .logo{
+      width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,var(--accent),#4f46e5);
+      display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(124,58,237,0.18);
+      transform:translateZ(0);
+    }
+    .logo svg{width:34px;height:34px;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.4))}
+    h1{font-size:1.35rem;margin:0}
+    p.lead{margin:0;color:var(--muted);font-size:0.95rem}
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 420px;
+      gap:20px;
+    }
+    @media (max-width:980px){ .grid{grid-template-columns:1fr} }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:var(--radius); padding:20px; box-shadow:var(--shadow); border:1px solid rgba(255,255,255,0.03);
+      transition:transform .28s cubic-bezier(.2,.9,.2,1), box-shadow .28s; will-change:transform;
+    }
+    .card:hover{ transform: translateY(-4px); box-shadow: 0 18px 40px rgba(2,6,23,0.72) }
+    .section-title{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .section-title h2{font-size:1.05rem;margin:0}
+    .section-sub{color:var(--muted);font-size:0.92rem;margin-top:-2px}
+    label.field{
+      display:flex;align-items:center;gap:10px;font-weight:600;margin-bottom:8px;color:#eaf0ff;
+      font-size:0.95rem
+    }
+    .icon{width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,0.015), transparent)}
+    .field-row{margin-bottom:14px}
+    input[type=text], textarea, select{
+      width:100%;padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,0.04);
+      background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
+      color:var(--accent-2);font-size:15px;outline:none;transition:box-shadow .18s, border-color .18s;
+      box-shadow: inset 0 -6px 14px rgba(0,0,0,0.25);
+    }
+    input[type=text]:focus, textarea:focus, select:focus{
+      border-color: rgba(124,58,237,0.9); box-shadow:0 6px 28px rgba(124,58,237,0.06);
+      color:#e6eef8;
+    }
+    textarea{min-height:140px;resize:vertical;font-size:14px;line-height:1.45}
+    textarea[readonly], input[readonly]{color:var(--muted)}
+    .muted{color:var(--muted);font-size:13px}
+    .note{color:var(--muted);font-size:13px;margin-top:6px}
+    .btn-row{display:flex;gap:10px;flex-wrap:wrap}
+    button.btn{
+      display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;border:0;cursor:pointer;font-weight:700;
+      transition:transform .14s, box-shadow .14s, opacity .12s; white-space:nowrap;
+    }
+    button.btn:active{ transform:translateY(1px) }
+    .primary{background:linear-gradient(90deg,var(--accent),#4f46e5); color:white; box-shadow: 0 8px 30px rgba(79,70,229,0.18)}
+    .green{background:linear-gradient(90deg,#10b981,#059669);color:white}
+    .blue{background:linear-gradient(90deg,#2563eb,#3b82f6);color:white}
+    .ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
+    .danger{background:linear-gradient(90deg,#ef4444,#f97316);color:white}
+    .controls{display:flex;gap:12px;align-items:center;justify-content:space-between}
+    .controls .right{display:flex;gap:8px;align-items:center}
+    .output{
+      background: rgba(2,6,23,0.45); border-radius:12px; padding:12px; font-family:var(--mono); font-size:13px; color:#cce7ff;
+      white-space:pre-wrap; word-break:break-all; border:1px solid rgba(255,255,255,0.02);
+    }
+    .small{font-size:13px;color:var(--muted)}
+    .muted-tag{padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.02);font-size:12px;color:var(--muted)}
+    .row-split{display:flex;gap:12px}
+    .row-split > *{flex:1}
+    @media (max-width:720px){ .row-split{flex-direction:column} }
+    .share-area{display:flex;gap:12px;align-items:center}
+    .share-area input{flex:1}
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,0.6);z-index:9999}
+    .modal.show{display:flex}
+    .modal .box{width:min(760px,94%);background:var(--card);padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.02)}
     .modal textarea{height:160px}
-    .footer{margin-top:18px;text-align:center;color:var(--muted);font-size:13px}
-    @media (max-width:720px){.buttons{flex-direction:column} .flex{flex-direction:column;align-items:stretch}}
+    .toast{position:fixed;right:18px;bottom:22px;background:rgba(0,0,0,0.6);color:white;padding:12px 16px;border-radius:999px;font-weight:600;display:flex;gap:10px;align-items:center;box-shadow:0 8px 30px rgba(0,0,0,0.6);opacity:0;transform:translateY(16px);transition:opacity .25s,transform .25s;z-index:99999}
+    .toast.show{opacity:1;transform:translateY(0)}
+    .fade-in{animation:fadeIn .6s ease both}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+    footer{margin-top:18px;text-align:center;color:var(--muted);font-size:13px}
+    .help{font-size:13px;color:var(--muted)}
+    .kbd{background:rgba(255,255,255,0.03); padding:6px 8px;border-radius:8px;font-weight:700;color:var(--muted);font-size:12px}
+    .hint{font-size:12px;color:var(--muted)}
   </style>
 </head>
 <body>
-<div class="container">
-  <h1>Cipher Generator</h1>
-  <p class="sub">Encrypt & decrypt messages locally. Modifier codes change the derived key — keep them secret or include them in share links.</p>
-
-  <div class="card" id="encryptCard">
-    <div class="row">
-      <label for="plaintext">Message</label>
-      <textarea id="plaintext" placeholder="Type your secret message here...">Hello, world!</textarea>
-    </div>
-
-    <div class="row">
-      <label for="passphrase">Passphrase (main key)</label>
-      <input id="passphrase" type="text" placeholder="Enter a strong passphrase" />
-    </div>
-
-    <div class="row">
-      <label for="codes">Modifier Codes (optional)</label>
-      <input id="codes" type="text" placeholder="e.g. alpha,moon,red" />
-      <div class="note">If you include modifier codes when encrypting, the same codes are required to decrypt (unless included in the share link).</div>
-    </div>
-
-    <div class="row">
-      <label for="iterations">Security Level</label>
-      <select id="iterations">
-        <option value="120000">Fast (120k iterations)</option>
-        <option value="200000" selected>Balanced (200k iterations)</option>
-        <option value="400000">Strong (400k iterations)</option>
-      </select>
-    </div>
-
-    <div class="row buttons">
-      <button id="encryptBtn" class="btn-primary">Encrypt 🔒</button>
-      <button id="decryptBtn" class="btn-green">Decrypt 🔓</button>
-      <button id="clearBtn" class="btn-secondary">Clear</button>
-    </div>
-
-    <div style="height:8px"></div>
-
-    <div class="row">
-      <label for="tokenOutput">Encrypted Token</label>
-      <textarea id="tokenOutput" readonly rows="4" placeholder="(Encrypted token will appear here)">(Your encrypted text will appear here)</textarea>
-    </div>
-
-    <div class="row flex">
-      <div style="flex:1" class="buttons">
-        <button id="copyToken" class="btn-blue">Copy Token</button>
-        <button id="makeLink" class="btn-blue">Create Share Link</button>
-        <button id="downloadFile" class="btn-secondary">Download .secret</button>
+  <div class="wrap">
+    <header class="fade-in" role="banner">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="3" y="7" width="18" height="12" rx="2" fill="white" opacity="0.06"></rect>
+          <path d="M7 11v-2a5 5 0 0 1 10 0v2" stroke="white" stroke-opacity="0.9" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+          <circle cx="12" cy="14" r="1.6" fill="white" opacity="0.9"></circle>
+        </svg>
       </div>
-      <div style="min-width:220px">
-        <label style="font-weight:600;margin-bottom:6px;display:block">Share link options</label>
-        <div class="muted" style="font-size:13px">Include modifier codes in the link?</div>
-        <div style="margin-top:8px"><input type="checkbox" id="includeCodesCheckbox" /> <label for="includeCodesCheckbox" class="muted">Yes — embed codes in link</label></div>
+      <div>
+        <h1>Cipher Generator</h1>
+        <p class="lead">Client-side encryption — create shareable tokens or links. Keep your passphrase & modifier codes secret.</p>
+      </div>
+    </header>
+
+    <main class="grid" role="main">
+      <section class="card fade-in" aria-labelledby="encryptHeading">
+        <div class="section-title">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 21l3-1 11-11 2 2L8 22l-5 1z" stroke="white" stroke-opacity="0.85" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <h2 id="encryptHeading">Encrypt a message</h2>
+            <div class="section-sub">Type a message, choose a passphrase, optionally add modifier codes and press <span class="kbd">Ctrl+Enter</span> or the Encrypt button.</div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <label class="field" for="plaintext">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M4 6h16M4 12h10M4 18h16" stroke="white" stroke-opacity="0.9" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            Message
+          </label>
+          <textarea id="plaintext" placeholder="Type your secret message here...">Hello, world!</textarea>
+        </div>
+
+        <div class="row-split">
+          <div>
+            <div class="field-row">
+              <label class="field" for="passphrase">
+                <span class="icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M12 11v6" stroke="white" stroke-opacity="0.9" stroke-width="1.2" stroke-linecap="round"/><rect x="6" y="8" width="12" height="8" rx="2" stroke="white" stroke-opacity="0.9" stroke-width="1.2"/></svg>
+                </span>
+                Passphrase (main key)
+              </label>
+              <input id="passphrase" type="text" placeholder="Enter a strong passphrase" autocomplete="new-password" />
+              <div class="note">Use a long, unpredictable passphrase. This never leaves your device.</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="field-row">
+              <label class="field" for="codes">
+                <span class="icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M3 6h18M3 12h14M3 18h10" stroke="white" stroke-opacity="0.9" stroke-width="1.2" stroke-linecap="round"/></svg>
+                </span>
+                Modifier Codes <span class="small" style="margin-left:6px;font-weight:600;color:var(--muted)">(optional)</span>
+              </label>
+              <input id="codes" type="text" placeholder="e.g. alpha,moon,red" />
+              <div class="note">Modifier codes are combined with the salt — same codes required to decrypt unless embedded in share link.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <label class="field" for="iterations">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4" stroke="white" stroke-opacity="0.9" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            Security Level
+          </label>
+          <select id="iterations" aria-label="Security level">
+            <option value="100000">Fast — 100k iterations</option>
+            <option value="200000">Balanced — 200k iterations</option>
+            <option value="400000" selected>Strong — 400k iterations</option>
+            <option value="800000">Very strong — 800k iterations (slower)</option>
+          </select>
+          <div class="hint">Higher iterations increase derivation time but make brute-force harder.</div>
+        </div>
+
+        <div style="height:10px"></div>
+
+        <div class="controls" style="margin-bottom:12px">
+          <div class="btn-row">
+            <button id="encryptBtn" class="btn primary" title="Encrypt (Ctrl+Enter)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83" stroke="white" stroke-width="1.2"/></svg> Encrypt</button>
+            <button id="decryptBtn" class="btn green" title="Decrypt (Ctrl+Shift+Enter)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 12h12M12 3v6" stroke="white" stroke-width="1.2"/></svg> Decrypt</button>
+            <button id="clearBtn" class="btn ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6v14a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V6" stroke="white" stroke-opacity="0.9" stroke-width="1.2"/></svg> Clear</button>
+          </div>
+
+          <div class="right">
+            <div class="muted-tag">Local only</div>
+            <div class="small" style="margin-left:4px">All operations happen in your browser</div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <label class="field" for="tokenOutput">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M12 2l4 4-6 14-6-14 4-4" stroke="white" stroke-opacity="0.9" stroke-width="1.2"/></svg>
+            </span>
+            Encrypted Token
+          </label>
+          <textarea id="tokenOutput" readonly rows="4" placeholder="(Encrypted token will appear here)">(Your encrypted text will appear here)</textarea>
+        </div>
+
+        <div class="field-row share-area">
+          <div style="flex:1" class="btn-row">
+            <button id="copyToken" class="btn blue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 12h6M9 6h6M9 18h6" stroke="white" stroke-width="1.2"/></svg> Copy Token</button>
+            <button id="makeLink" class="btn blue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M10 14l2-2 4 4M14 10l-2 2-4-4" stroke="white" stroke-width="1.2"/></svg> Create Share Link</button>
+            <button id="downloadFile" class="btn ghost"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 3v12M8 11l4 4 4-4M4 21h16" stroke="white" stroke-width="1.2"/></svg> Download .token</button>
+          </div>
+
+          <div style="min-width:240px;display:flex;flex-direction:column;gap:8px">
+            <label class="small" style="margin:0">Share link options</label>
+            <div style="display:flex;align-items:center;gap:8px">
+              <input type="checkbox" id="includeCodesCheckbox" />
+              <label for="includeCodesCheckbox" class="small muted">Embed modifier codes in link</label>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <aside class="card fade-in" aria-labelledby="decryptHeading">
+        <div class="section-title">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M12 3v6M8 9h8M3 12h18" stroke="white" stroke-opacity="0.9" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </div>
+          <div>
+            <h2 id="decryptHeading">Decrypt / Paste token</h2>
+            <div class="section-sub">Paste a token or a link containing <code>#secret=...</code>. The UI will attempt to parse it.</div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <label class="field" for="pasteToken">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none"><path d="M12 2v4M12 18v4M4 12h16" stroke="white" stroke-opacity="0.9" stroke-width="1.2"/></svg>
+            </span>
+            Paste Token or Link
+          </label>
+          <input id="pasteToken" type="text" placeholder="Paste your token or a link with #secret=..." />
+          <div class="note">Supports fragments like <code>#secret=TOKEN</code> or <code>#?secret=TOKEN&codes=...</code>. Links with encoded tokens are supported.</div>
+        </div>
+
+        <div class="field-row">
+          <label class="field" for="plainOutput">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none"><path d="M4 6h16M4 12h8M4 18h16" stroke="white" stroke-opacity="0.9" stroke-width="1.2"/></svg>
+            </span>
+            Decrypted Message
+          </label>
+          <div id="plainOutput" class="output">(Decrypted message will appear here)</div>
+        </div>
+
+        <div id="shareRow" class="field-row" style="display:none">
+          <label class="field" for="shareLink">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none"><path d="M10 14l2-2 4 4M14 10l-2 2-4-4" stroke="white" stroke-width="1.2"/></svg>
+            </span>
+            Share Link (generated)
+          </label>
+          <input id="shareLink" type="text" readonly />
+          <div style="margin-top:8px" class="btn-row">
+            <button id="copyLink" class="btn blue">Copy Link</button>
+            <button id="openLink" class="btn ghost">Open Link</button>
+          </div>
+        </div>
+
+        <div style="height:6px"></div>
+        <div class="small">Tips: Use <span class="kbd">Ctrl+Enter</span> to encrypt, <span class="kbd">Ctrl+Shift+Enter</span> to decrypt. Copy actions show a toast instead of alerts.</div>
+      </aside>
+    </main>
+
+    <footer>
+      <div class="help">🔒 All encryption happens in your browser — nothing is sent to any server.</div>
+    </footer>
+  </div>
+
+  <div id="modal" class="modal" role="dialog" aria-hidden="true">
+    <div class="box">
+      <h3 style="margin-top:0">Manual copy required</h3>
+      <p class="muted">Your environment blocked clipboard access. Please copy the text below manually (select and press Ctrl/Cmd+C).</p>
+      <textarea id="manualCopyArea" readonly></textarea>
+      <div style="display:flex;gap:10px;margin-top:10px;justify-content:flex-end">
+        <button id="modalSelect" class="btn blue">Select All</button>
+        <button id="modalClose" class="btn ghost">Close</button>
       </div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="row">
-      <label for="pasteToken">Paste Token or Link</label>
-      <input id="pasteToken" type="text" placeholder="Paste your token or link with #secret=..." />
-    </div>
-
-    <div class="row">
-      <label>Decrypted Message</label>
-      <div id="plainOutput" class="output">(Decrypted message will appear here)</div>
-    </div>
-
-    <div class="row" id="shareRow" style="display:none">
-      <label for="shareLink">Share Link (generated)</label>
-      <input id="shareLink" type="text" readonly />
-      <div class="buttons" style="margin-top:8px">
-        <button id="copyLink" class="btn-blue">Copy Link</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="footer">💡 All encryption happens in your browser — nothing is sent to any server.</div>
-</div>
-
-<div id="modal" class="modal" role="dialog" aria-hidden="true">
-  <div class="box">
-    <h3 style="margin-top:0">Manual copy required</h3>
-    <p class="muted">Your browser or environment blocked programmatic clipboard access. Please copy the text below manually (select it and press Ctrl/Cmd+C).</p>
-    <textarea id="manualCopyArea"></textarea>
-    <div style="display:flex;gap:10px;margin-top:10px">
-      <button id="modalSelect" class="btn-blue">Select All</button>
-      <button id="modalClose" class="btn-secondary">Close</button>
-    </div>
-  </div>
-</div>
+  <div id="toast" class="toast" role="status" aria-live="polite">Copied ✓</div>
 
 <script>
 const enc = new TextEncoder();
 const dec = new TextDecoder();
+const $ = id => document.getElementById(id);
 
 function toBase64Url(buf){
-  return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  const u8 = buf instanceof ArrayBuffer ? new Uint8Array(buf) : buf;
+  let binary = '';
+  const chunk = 0x8000;
+  for (let i = 0; i < u8.length; i += chunk) {
+    binary += String.fromCharCode.apply(null, u8.subarray(i, i + chunk));
+  }
+  return btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 }
 
 function fromBase64Url(s){
+  if(!s) return new ArrayBuffer(0);
   s = s.replace(/-/g,'+').replace(/_/g,'/');
   while(s.length % 4) s += '=';
   const bin = atob(s);
-  return Uint8Array.from(bin, c=>c.charCodeAt(0)).buffer;
+  const arr = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) arr[i] = bin.charCodeAt(i);
+  return arr.buffer;
 }
 
 function randBytes(n){ const a=new Uint8Array(n); crypto.getRandomValues(a); return a; }
 
 async function deriveKey(pass, saltBuffer, iters){
   const baseKey = await crypto.subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveKey']);
-  return crypto.subtle.deriveKey({name:'PBKDF2', salt: saltBuffer, iterations: iters, hash:'SHA-256'}, baseKey, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']);
+  return crypto.subtle.deriveKey(
+    {name:'PBKDF2', salt: saltBuffer, iterations: iters, hash:'SHA-256'},
+    baseKey,
+    {name:'AES-GCM', length:256},
+    false,
+    ['encrypt','decrypt']
+  );
 }
 
 async function encryptText(txt, pass, codes, iters){
+  if(typeof txt !== 'string' || txt.length === 0) throw new Error('Empty plaintext');
+  if(typeof pass !== 'string' || pass.length === 0) throw new Error('Empty passphrase');
   const rawSalt = randBytes(16);
   const iv = randBytes(12);
   const codeBytes = enc.encode(codes || '');
-  const combined = new Uint8Array(rawSalt.length + codeBytes.length);
-  combined.set(rawSalt, 0);
-  combined.set(codeBytes, rawSalt.length);
+  const combined = new Uint8Array(rawSalt.byteLength + codeBytes.length);
+  combined.set(new Uint8Array(rawSalt), 0);
+  combined.set(codeBytes, rawSalt.byteLength);
   const hash = await crypto.subtle.digest('SHA-256', combined.buffer);
   const finalSalt = new Uint8Array(hash).slice(0,16).buffer;
   const key = await deriveKey(pass, finalSalt, iters);
   const ct = await crypto.subtle.encrypt({name:'AES-GCM', iv}, key, enc.encode(txt));
-  return ['v1', toBase64Url(rawSalt.buffer), toBase64Url(iv), toBase64Url(ct), iters].join('.');
+  return ['v1', toBase64Url(rawSalt), toBase64Url(iv), toBase64Url(ct), String(iters)].join('.');
 }
 
 async function decryptText(token, pass, codes){
+  if(!token || typeof token !== 'string') throw new Error('No token');
+  const parts = token.split('.');
+  if(parts.length !== 5) throw new Error('Token format mismatch');
+  const [ver, saltB, ivB, ctB, itS] = parts;
+  if(!ver || !saltB || !ivB || !ctB || !itS) throw new Error('Token missing parts');
+  if(ver !== 'v1') throw new Error('Unsupported token version');
+  const rawSaltBuf = fromBase64Url(saltB);
+  const ivBuf = fromBase64Url(ivB);
+  const ctBuf = fromBase64Url(ctB);
+  const iters = parseInt(itS, 10);
+  if(Number.isNaN(iters) || iters <= 0) throw new Error('Invalid iteration count');
+  const codeBytes = enc.encode(codes || '');
+  const rawArr = new Uint8Array(rawSaltBuf);
+  const combined = new Uint8Array(rawArr.length + codeBytes.length);
+  combined.set(rawArr,0);
+  combined.set(codeBytes, rawArr.length);
+  const hash = await crypto.subtle.digest('SHA-256', combined.buffer);
+  const finalSalt = new Uint8Array(hash).slice(0,16).buffer;
+  const key = await deriveKey(pass, finalSalt, iters);
   try{
-    const parts = token.split('.');
-    if(parts.length < 5) throw new Error();
-    const [, saltB, ivB, ctB, itS] = parts;
-    const rawSaltBuf = fromBase64Url(saltB);
-    const ivBuf = fromBase64Url(ivB);
-    const ctBuf = fromBase64Url(ctB);
-    const iters = parseInt(itS,10);
-    const codeBytes = enc.encode(codes || '');
-    const rawArr = new Uint8Array(rawSaltBuf);
-    const combined = new Uint8Array(rawArr.length + codeBytes.length);
-    combined.set(rawArr,0);
-    combined.set(codeBytes, rawArr.length);
-    const hash = await crypto.subtle.digest('SHA-256', combined.buffer);
-    const finalSalt = new Uint8Array(hash).slice(0,16).buffer;
-    const key = await deriveKey(pass, finalSalt, iters);
-    const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv:new Uint8Array(ivBuf)}, key, ctBuf);
-    return dec.decode(pt);
-  } catch(e){
-    return '❌ Failed to decrypt';
+    const ptBuf = await crypto.subtle.decrypt({name:'AES-GCM', iv:new Uint8Array(ivBuf)}, key, ctBuf);
+    return dec.decode(ptBuf);
+  }catch(e){
+    throw new Error('Decryption failed — check passphrase and modifier codes (or token may be corrupted).');
   }
 }
 
-const el = id => document.getElementById(id);
+function showToast(text = 'Done', timeout = 2400){
+  const t = $('toast');
+  t.textContent = text;
+  t.classList.add('show');
+  clearTimeout(t._ht);
+  t._ht = setTimeout(()=> t.classList.remove('show'), timeout);
+}
 
 async function copyToClipboard(text){
-  if(!text) { alert('Nothing to copy'); return false; }
-  try { await navigator.clipboard.writeText(text); return true; } catch(e){}
+  if(!text) { showToast('Nothing to copy'); return false; }
   try{
-    const ta=document.createElement('textarea');
-    ta.value=text;
-    ta.style.position='fixed';
-    ta.style.left='-9999px';
-    document.body.appendChild(ta);
-    ta.select();
-    ta.setSelectionRange(0, ta.value.length);
-    const ok=document.execCommand('copy');
-    document.body.removeChild(ta);
-    if(ok) return true;
-  } catch(e){}
-  const modal=el('modal');
-  const area=el('manualCopyArea');
-  area.value=text;
-  modal.style.display='flex';
+    await navigator.clipboard.writeText(text);
+    showToast('Copied to clipboard');
+    return true;
+  }catch(e){
+    try{
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, ta.value.length);
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      if(ok){ showToast('Copied to clipboard'); return true; }
+    }catch(e){}
+  }
+  const modal = $('modal');
+  const area = $('manualCopyArea');
+  area.value = text;
+  modal.classList.add('show');
   modal.setAttribute('aria-hidden','false');
-  setTimeout(()=>{ area.focus(); area.select(); },100);
+  setTimeout(()=>{ area.focus(); area.select(); }, 120);
   return false;
 }
 
 function hideManualCopyModal(){
-  const modal=el('modal');
-  modal.style.display='none';
+  const modal = $('modal');
+  modal.classList.remove('show');
   modal.setAttribute('aria-hidden','true');
 }
 
-el('encryptBtn').addEventListener('click', async ()=>{
-  const t=el('plaintext').value.trim();
-  const p=el('passphrase').value.trim();
-  const c=el('codes').value.trim();
-  const it=parseInt(el('iterations').value,10);
-  if(!t||!p) return alert('Enter message and passphrase!');
-  el('tokenOutput').value='Encrypting...';
+function parseTokenFromString(s){
+  if(!s || typeof s !== 'string') return null;
   try{
-    const tok=await encryptText(t,p,c,it);
-    el('tokenOutput').value=tok;
-    el('shareRow').style.display='none';
-  }catch{el('tokenOutput').value='Error during encryption';}
+    const hashIndex = s.indexOf('#');
+    let fragment = null;
+    if(hashIndex !== -1){
+      fragment = s.slice(hashIndex + 1);
+    } else {
+      fragment = s.trim();
+    }
+    fragment = fragment.replace(/^\/+/, '').replace(/^\?+/, '');
+    let params;
+    if(fragment.includes('secret=')){
+      params = new URLSearchParams(fragment);
+    } else {
+      const tokenRegex = /(v1\.[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+\.\d+)/;
+      const m = s.match(tokenRegex);
+      if(m) return { token: m[1], codes: null };
+      return null;
+    }
+    const token = params.get('secret') || params.get('token') || params.get('t') || null;
+    const codes = params.get('codes') || params.get('c') || null;
+    return token ? { token: decodeURIComponent(token), codes: codes ? decodeURIComponent(codes) : null } : null;
+  }catch(e){
+    return null;
+  }
+}
+
+function looksLikeToken(t){
+  if(!t || typeof t !== 'string') return false;
+  return /^v1\.[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+\.\d+$/.test(t);
+}
+
+const el = id => $(id);
+
+el('encryptBtn').addEventListener('click', async ()=>{
+  const t = el('plaintext').value;
+  const p = el('passphrase').value;
+  const c = el('codes').value.trim();
+  const it = parseInt(el('iterations').value, 10);
+  if(!t || !p){ showToast('Enter message and passphrase'); return; }
+  el('tokenOutput').value = 'Encrypting...';
+  try{
+    const tok = await encryptText(t, p, c, it);
+    el('tokenOutput').value = tok;
+    el('shareRow').style.display = 'none';
+    showToast('Encrypted ✓');
+  }catch(err){
+    el('tokenOutput').value = '(Error during encryption)';
+    showToast(String(err.message || 'Encryption failed'));
+  }
 });
 
 el('decryptBtn').addEventListener('click', async ()=>{
-  const tok=el('pasteToken').value.trim()||el('tokenOutput').value.trim();
-  const p=el('passphrase').value.trim();
-  const c=el('codes').value.trim();
-  if(!tok||!p) return alert('Enter token and passphrase!');
-  el('plainOutput').textContent='Decrypting...';
-  const res=await decryptText(tok,p,c);
-  el('plainOutput').textContent=res;
+  const tokInput = el('pasteToken').value.trim() || el('tokenOutput').value.trim();
+  const p = el('passphrase').value.trim();
+  const c = el('codes').value.trim();
+  if(!tokInput || !p){ showToast('Enter token and passphrase'); return; }
+  el('plainOutput').textContent = 'Decrypting...';
+  try{
+    const parsed = parseTokenFromString(tokInput);
+    let tokenToUse = tokInput;
+    let codesFromLink = null;
+    if(parsed && parsed.token) { tokenToUse = parsed.token; codesFromLink = parsed.codes; }
+    const codesFinal = c || codesFromLink || '';
+    const res = await decryptText(tokenToUse, p, codesFinal);
+    el('plainOutput').textContent = res;
+    showToast('Decrypted ✓');
+  }catch(err){
+    el('plainOutput').textContent = '❌ Failed to decrypt — check passphrase and modifier codes.';
+    showToast(String(err.message || 'Failed to decrypt'));
+  }
 });
 
 el('copyToken').addEventListener('click', async ()=>{
-  const tok=el('tokenOutput').value;
-  if(await copyToClipboard(tok)) alert('Token copied to clipboard');
+  const tok = el('tokenOutput').value;
+  const ok = await copyToClipboard(tok);
+  if(ok) { }
 });
 
 el('makeLink').addEventListener('click', ()=>{
-  const token=el('tokenOutput').value;
-  if(!token||!token.startsWith('v1.')) return alert('No valid token to share');
-  const includeCodes=el('includeCodesCheckbox').checked;
-  let frag='secret='+encodeURIComponent(token);
+  const token = el('tokenOutput').value.trim();
+  if(!token || !looksLikeToken(token)) { showToast('No valid token to share'); return; }
+  const includeCodes = el('includeCodesCheckbox').checked;
+  let frag = 'secret=' + encodeURIComponent(token);
   if(includeCodes){
-    const c=el('codes').value.trim();
-    if(c) frag+='&codes='+encodeURIComponent(c);
+    const c = el('codes').value.trim();
+    if(c) frag += '&codes=' + encodeURIComponent(c);
   }
-  const link=`${location.href.split('#')[0]}#${frag}`;
-  el('shareLink').value=link;
-  el('shareRow').style.display='block';
-  setTimeout(()=>el('shareLink').scrollIntoView({behavior:'smooth',block:'center'}),80);
+  const base = location.href.split('#')[0].split('?')[0];
+  const link = `${base}#${frag}`;
+  el('shareLink').value = link;
+  el('shareRow').style.display = 'block';
+  setTimeout(()=> el('shareLink').scrollIntoView({behavior:'smooth',block:'center'}),80);
+  showToast('Share link generated');
 });
 
 el('copyLink').addEventListener('click', async ()=>{
-  const link=el('shareLink').value;
-  if(await copyToClipboard(link)) alert('Share link copied to clipboard');
+  const link = el('shareLink').value;
+  if(!link) { showToast('No link to copy'); return; }
+  if(await copyToClipboard(link)) { }
+});
+
+el('openLink').addEventListener('click', ()=>{
+  const link = el('shareLink').value;
+  if(!link) return showToast('No link to open');
+  window.open(link, '_blank', 'noopener');
 });
 
 el('downloadFile').addEventListener('click', ()=>{
-  const token=el('tokenOutput').value;
-  if(!token||!token.startsWith('v1.')) return alert('No valid token to download');
-  const blob=new Blob([token],{type:'text/plain'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download='secret.token';
+  const token = el('tokenOutput').value.trim();
+  if(!token || !looksLikeToken(token)) { showToast('No valid token to download'); return; }
+  const blob = new Blob([token], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const ts = new Date().toISOString().replace(/[:.]/g,'-');
+  a.download = `secret-${ts}.token`;
+  document.body.appendChild(a);
   a.click();
+  a.remove();
   URL.revokeObjectURL(a.href);
+  showToast('Downloaded .token file');
 });
 
 el('clearBtn').addEventListener('click', ()=>{
-  ['plaintext','passphrase','codes','pasteToken'].forEach(id=>el(id).value='');
-  el('tokenOutput').value='(Your encrypted text will appear here)';
-  el('plainOutput').textContent='(Decrypted message will appear here)';
-  el('shareRow').style.display='none';
+  ['plaintext','passphrase','codes','pasteToken'].forEach(id=> el(id).value = '');
+  el('tokenOutput').value = '(Your encrypted text will appear here)';
+  el('plainOutput').textContent = '(Decrypted message will appear here)';
+  el('shareRow').style.display = 'none';
+  showToast('Cleared');
 });
 
-el('modalSelect').addEventListener('click', ()=>{ const a=el('manualCopyArea'); a.focus(); a.select(); });
+el('modalSelect').addEventListener('click', ()=>{ const a = el('manualCopyArea'); a.focus(); a.select(); });
 el('modalClose').addEventListener('click', hideManualCopyModal);
 
-window.addEventListener('load', ()=>{
-  if(location.hash){
-    try{
-      const hashStr = location.hash;
-      const index = hashStr.indexOf('#secret=');
-      if(index !== -1){
-        const frag = hashStr.slice(index + 8);
-        const params = new URLSearchParams(frag);
-        const token = params.get('');
-        const codes = params.get('codes');
-        if(token) el('pasteToken').value = token;
-        if(codes) el('codes').value = codes;
-      }
-    }catch{}
+window.addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter' && e.ctrlKey && !e.shiftKey){
+    e.preventDefault();
+    el('encryptBtn').click();
+  } else if(e.key === 'Enter' && e.ctrlKey && e.shiftKey){
+    e.preventDefault();
+    el('decryptBtn').click();
   }
 });
+
+window.addEventListener('load', ()=>{
+  try{
+    const hash = location.hash || '';
+    if(hash){
+      const parsed = parseTokenFromString(hash);
+      if(parsed && parsed.token){
+        el('pasteToken').value = parsed.token;
+        if(parsed.codes) el('codes').value = parsed.codes;
+      } else {
+        const queryIndex = location.href.indexOf('?');
+        if(queryIndex !== -1){
+          const q = location.href.slice(queryIndex + 1);
+          const qparams = new URLSearchParams(q);
+          const token = qparams.get('secret') || qparams.get('token');
+          const codes = qparams.get('codes');
+          if(token) el('pasteToken').value = decodeURIComponent(token);
+          if(codes) el('codes').value = decodeURIComponent(codes);
+        }
+      }
+    }
+  }catch(e){
+    console.error('Hash parse error', e);
+  }
+});
+
+el('pasteToken').addEventListener('change', (ev)=>{
+  const v = ev.target.value || '';
+  const parsed = parseTokenFromString(v);
+  if(parsed){
+    if(parsed.token) el('pasteToken').value = parsed.token;
+    if(parsed.codes) el('codes').value = parsed.codes;
+    showToast('Token parsed from link');
+  }
+});
+
+window.addEventListener('load', ()=> setTimeout(()=> el('plaintext').focus(), 120) );
+
 </script>
 </body>
 </html>
